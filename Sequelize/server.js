@@ -1,0 +1,77 @@
+const express = require("express");
+const bodyParser=require("body-parser");
+const cors = require("cors");
+
+const app = express();
+
+const db = require("./app/models");
+const controller = require("./app/controllers/controller");
+
+const run = async () => {
+
+};
+
+db.sequelize.sync();
+
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Drop and re-sync db.");
+});
+
+const tut1 = await controller.postTutorial({
+  title: "thara",
+  description: "thara Description",
+});
+db.sequelize.sync();
+
+const tut2 = await controller.postTutorial({
+  title: "jashru",
+  description: "jashru Description",
+});
+
+const comment1 = await controller.postComment(tut1.id, {
+  name: "thara",
+  text: "hello!",
+});
+await controller.postComment(tut1.id, {
+  name: "mthara",
+  text: "How are you!",
+});
+
+const comment2 = await controller.postComment(tut2.id, {
+  name: "buddi",
+  text: "Hi!",
+});
+await controller.postComment(tut2.id, {
+  name: "mbuddi",
+  text: "How is your day?",
+});
+
+//GET
+const tut1Data = await controller.getTutorialById(tut1.id);
+console.log(
+">> Tutorial id=" + tut1Data.id,
+JSON.stringify(tut1Data, null, 2)
+);
+const tut2Data = await controller.getTutorialById(tut2.id);
+console.log(
+">> Tutorial id=" + tut2Data.id,
+JSON.stringify(tut2Data, null, 2)
+);
+
+const comment1Data = await controller.getCommentById(comment1.id);
+console.log(
+">> Comment id=" + comment1.id,
+JSON.stringify(comment1Data, null, 2)
+);
+const comment2Data = await controller.getCommentById(comment2.id);
+console.log(
+">> Comment id=" + comment2.id,
+JSON.stringify(comment2Data, null, 2)
+);
+const tutorials = await controller.getAll();
+console.log(">> All tutorials", JSON.stringify(tutorials, null, 2));
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
